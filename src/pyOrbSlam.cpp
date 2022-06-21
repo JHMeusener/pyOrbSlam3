@@ -29,6 +29,15 @@
 
 namespace py = pybind11;
 
+class Debug
+{
+  public:
+  Debug(){};
+  ~Debug(){};
+  std::string getPID(){pid_t pid = getpid();
+                  return to_string(pid);}
+};
+
 class PyOrbSlam
 {
 public:
@@ -76,6 +85,7 @@ public:
     slam->Shutdown();
     this_thread::sleep_for(chrono::milliseconds(5000));
     delete &slam;
+    delete &conv;
   };
 
   void Shutdown(){
@@ -105,129 +115,56 @@ public:
 
   void Reset(){slam->Reset();};
 
-  std::string getPID(){pid_t pid = getpid();
-                  return to_string(pid);}
-
   void ResetActiveMap(){slam->ResetActiveMap();};
 
   int GetTrackingState(){return slam->GetTrackingState();};
 
   bool IsLost(){return slam->isLost();};
 
-  cv::Mat GetTrackedMapPoints(){
+  int getNrOfMaps(){
+      vector<ORB_SLAM3::Map*> vpMaps = slam->mpAtlas->GetAllMaps();
+      return vpMaps.size();
+  }
+
+  cv::Mat GetTrackedMapReferencePointsOfMap(int mapNr){
     try{
-      /*
-      Map* pActiveMap = mpAtlas->GetCurrentMap();
-    if(!pActiveMap)
-        return;
-
-    const vector<MapPoint*> &vpMPs = pActiveMap->GetAllMapPoints();
-    const vector<MapPoint*> &vpRefMPs = pActiveMap->GetReferenceMapPoints();
-
-    set<MapPoint*> spRefMPs(vpRefMPs.begin(), vpRefMPs.end());
-
-    if(vpMPs.empty())
-        return;
-
-    glPointSize(mPointSize);
-    glBegin(GL_POINTS);
-    glColor3f(0.0,0.0,0.0);
-
-    for(size_t i=0, iend=vpMPs.size(); i<iend;i++)
-    {
-        if(vpMPs[i]->isBad() || spRefMPs.count(vpMPs[i]))
-            continue;
-        Eigen::Matrix<float,3,1> pos = vpMPs[i]->GetWorldPos();
-        glVertex3f(pos(0),pos(1),pos(2));
-    }
-    glEnd();
-
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      cout << endl << "Saving keyframe trajectory to " << filename << " ..." << endl;
-
-    vector<Map*> vpMaps = mpAtlas->GetAllMaps();
-    Map* pBiggerMap;
-    int numMaxKFs = 0;
-    for(Map* pMap :vpMaps)
-    {
-        if(pMap && pMap->GetAllKeyFrames().size() > numMaxKFs)
-        {
-            numMaxKFs = pMap->GetAllKeyFrames().size();
-            pBiggerMap = pMap;
-        }
-    }
-
-    if(!pBiggerMap)
-    {
-        std::cout << "There is not a map!!" << std::endl;
-        return;
-    }
-
-    vector<KeyFrame*> vpKFs = pBiggerMap->GetAllKeyFrames();
-    sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
-
-    // Transform all keyframes so that the first keyframe is at the origin.
-    // After a loop closure the first keyframe might not be at the origin.
-    ofstream f;
-    f.open(filename.c_str());
-    f << fixed;
-
-    for(size_t i=0; i<vpKFs.size(); i++)
-    {
-        KeyFrame* pKF = vpKFs[i];
-
-       // pKF->SetPose(pKF->GetPose()*Two);
-
-        if(!pKF || pKF->isBad())
-            continue;
-        if (mSensor == IMU_MONOCULAR || mSensor == IMU_STEREO || mSensor==IMU_RGBD)
-        {
-            Sophus::SE3f Twb = pKF->GetImuPose();
-            Eigen::Quaternionf q = Twb.unit_quaternion();
-            Eigen::Vector3f twb = Twb.translation();
-            f << setprecision(6) << 1e9*pKF->mTimeStamp  << " " <<  setprecision(9) << twb(0) << " " << twb(1) << " " << twb(2) << " " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << endl;
-
-        }
-        else
-        {
-            Sophus::SE3f Twc = pKF->GetPoseInverse();
-            Eigen::Quaternionf q = Twc.unit_quaternion();
-            Eigen::Vector3f t = Twc.translation();
-            f << setprecision(6) << 1e9*pKF->mTimeStamp << " " <<  setprecision(9) << t(0) << " " << t(1) << " " << t(2) << " " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << endl;
-        }
-    }
-    f.close();*/
-      std::vector<ORB_SLAM3::MapPoint*> mapPoints =  slam->GetTrackedMapPoints();
-      cv::Mat positions = conv->toCvMat(mapPoints[0]->GetWorldPos());
-      cv::Mat normals = conv->toCvMat(mapPoints[0]->GetNormal());
-      
-      for (int i = 0; i<mapPoints.size()-1;i++){
-        cv::vconcat(positions, conv->toCvMat(mapPoints[i]->GetWorldPos()), positions);
-        cv::vconcat(normals,conv->toCvMat(mapPoints[i]->GetNormal()), normals);
+      ORB_SLAM3::Map* pActiveMap;
+      if (mapNr == -1){
+        pActiveMap = slam->mpAtlas->GetCurrentMap();
       }
-      cv::hconcat(positions,normals,positions);
-      return positions;
+      else {
+        vector<ORB_SLAM3::Map*> vpMaps = slam->mpAtlas->GetAllMaps();
+        pActiveMap = vpMaps[mapNr];
+      }
+      if(!pActiveMap)
+        return  cv::Mat(1,3,CV_32FC1, 0.0f);
+    const vector<ORB_SLAM3::MapPoint*> &vpRefMPs = pActiveMap->GetReferenceMapPoints();
+    set<ORB_SLAM3::MapPoint*> spRefMPs(vpRefMPs.begin(), vpRefMPs.end());
+    if(vpRefMPs.empty())
+        return cv::Mat(1,3,CV_32FC1, 0.0f);
+    cv::Mat positions = cv::Mat(vpRefMPs.size(),40,CV_32FC1, 0.0f);
+    for(size_t i=0, iend=vpRefMPs.size(); i<iend;i++)
+      {
+          if(vpRefMPs[i]->isBad())
+              continue;
+          Eigen::Matrix<float,3,1> pos = vpRefMPs[i]->GetWorldPos();
+          //glVertex3f(pos(0),pos(1),pos(2));
+          positions.at<float>(i,0) = pos(0);
+          positions.at<float>(i,1) = pos(1);
+          positions.at<float>(i,2) = pos(2);
+          Eigen::Matrix<float,3,1> norm = vpRefMPs[i]->GetNormal();
+          //glVertex3f(pos(0),pos(1),pos(2));
+          positions.at<float>(i,3) = norm(0);
+          positions.at<float>(i,4) = norm(1);
+          positions.at<float>(i,5) = norm(2);
+          positions.at<float>(i,6) = float(vpRefMPs[i]->Observations());
+          positions.at<float>(i,7) = vpRefMPs[i]->GetFoundRatio();
+          cv::Mat descr =  vpRefMPs[i]->GetDescriptor();
+          for (int z = 0; z<32; z++){
+            positions.at<float>(i,8+z) = float(descr.at<unsigned char>(z));
+          }
+      }
+    return positions;
     }
     catch (const std::exception& e)
       {
@@ -239,22 +176,129 @@ public:
         //std::cerr << e.what() << std::endl;
         throw runtime_error(e.what());
       }
-    
-    // for each
-    //Eigen::Vector3f normal =  GetNormal();
-    //int observed =  Observations();
-    //float foundRation = GetFoundRatio();
-    //cv::Mat descr =  GetDescriptor();
-    //Eigen::Vector3f position =  GetWorldPos();
-    
-    };
-  /*std::vector<cv::KeyPoint> GetTrackedKeyPoints(){
-    
-    std::vector<cv::KeyPoint> keypoints =  slam->GetTrackedKeyPointsUn()
-    
-    };*/
-  
+  }
 
+
+    cv::Mat GetTrackedMapPointsOfMap(int mapNr){
+    try{
+      ORB_SLAM3::Map* pActiveMap;
+      if (mapNr == -1){
+        pActiveMap = slam->mpAtlas->GetCurrentMap();
+      }
+      else {
+        vector<ORB_SLAM3::Map*> vpMaps = slam->mpAtlas->GetAllMaps();
+        pActiveMap = vpMaps[mapNr];
+      }
+      if(!pActiveMap)
+        return  cv::Mat(1,3,CV_32FC1, 0.0f);
+
+    const vector<ORB_SLAM3::MapPoint*> &vpMPs = pActiveMap->GetAllMapPoints();
+    const vector<ORB_SLAM3::MapPoint*> &vpRefMPs = pActiveMap->GetReferenceMapPoints();
+
+    set<ORB_SLAM3::MapPoint*> spRefMPs(vpRefMPs.begin(), vpRefMPs.end());
+
+    if(vpMPs.empty())
+        return cv::Mat(1,3,CV_32FC1, 0.0f);
+    cv::Mat positions = cv::Mat(vpMPs.size(),40,CV_32FC1, 0.0f);
+    for(size_t i=0, iend=vpMPs.size(); i<iend;i++)
+      {
+          if(vpMPs[i]->isBad() )//|| spRefMPs.count(vpMPs[i]))
+              continue;
+          Eigen::Matrix<float,3,1> pos = vpMPs[i]->GetWorldPos();
+          //glVertex3f(pos(0),pos(1),pos(2));
+          positions.at<float>(i,0) = pos(0);
+          positions.at<float>(i,1) = pos(1);
+          positions.at<float>(i,2) = pos(2);
+          Eigen::Matrix<float,3,1> norm = vpMPs[i]->GetNormal();
+          //glVertex3f(pos(0),pos(1),pos(2));
+          positions.at<float>(i,3) = norm(0);
+          positions.at<float>(i,4) = norm(1);
+          positions.at<float>(i,5) = norm(2);
+          positions.at<float>(i,6) = float(vpMPs[i]->Observations());
+          positions.at<float>(i,7) = vpMPs[i]->GetFoundRatio();
+          cv::Mat descr =  vpMPs[i]->GetDescriptor();
+          for (int z = 0; z<32; z++){
+            positions.at<float>(i,8+z) = float(descr.at<unsigned char>(z));
+          }
+      }
+    return positions;
+    }
+    catch (const std::exception& e)
+      {
+        cout << e.what() << endl;
+        ofstream myfile;
+        myfile.open ("errorLog.txt");
+        myfile << e.what();
+        myfile.close();
+        //std::cerr << e.what() << std::endl;
+        throw runtime_error(e.what());
+      }
+  }
+
+  cv::Mat getKeyFramesOfMap(int mapNr, bool withIMU){
+      try{
+            ORB_SLAM3::Map* pActiveMap;
+            if (mapNr == -1){
+              pActiveMap = slam->mpAtlas->GetCurrentMap();
+            }
+            else {
+              vector<ORB_SLAM3::Map*> vpMaps = slam->mpAtlas->GetAllMaps();
+              pActiveMap = vpMaps[mapNr];
+            }
+            if(!pActiveMap)
+              return  cv::Mat(1,3,CV_32FC1, 0.0f);
+            vector<ORB_SLAM3::KeyFrame*> vpKFs = pActiveMap->GetAllKeyFrames();
+            sort(vpKFs.begin(),vpKFs.end(),ORB_SLAM3::KeyFrame::lId);
+            cv::Mat keyPositions = cv::Mat(vpKFs.size(),7,CV_32FC1, 0.0f);
+            for(size_t i=0; i<vpKFs.size(); i++)
+            {
+                ORB_SLAM3::KeyFrame* pKF = vpKFs[i];
+
+              // pKF->SetPose(pKF->GetPose()*Two);
+
+                if(!pKF || pKF->isBad())
+                    continue;
+                if (withIMU)
+                {
+                    Sophus::SE3f Twb = pKF->GetImuPose();
+                    Eigen::Quaternionf q = Twb.unit_quaternion();
+                    Eigen::Vector3f twb = Twb.translation();
+                    keyPositions.at<float>(i,0) = twb(0);
+                    keyPositions.at<float>(i,1) = twb(1);
+                    keyPositions.at<float>(i,2) = twb(2);
+                    keyPositions.at<float>(i,3) = q.x();
+                    keyPositions.at<float>(i,4) = q.y();
+                    keyPositions.at<float>(i,5) = q.z();
+                    keyPositions.at<float>(i,6) = q.w();
+                }
+                else
+                {
+                    Sophus::SE3f Twc = pKF->GetPoseInverse();
+                    Eigen::Quaternionf q = Twc.unit_quaternion();
+                    Eigen::Vector3f t = Twc.translation();
+                    keyPositions.at<float>(i,0) = t(0);
+                    keyPositions.at<float>(i,1) = t(1);
+                    keyPositions.at<float>(i,2) = t(2);
+                    keyPositions.at<float>(i,3) = q.x();
+                    keyPositions.at<float>(i,4) = q.y();
+                    keyPositions.at<float>(i,5) = q.z();
+                    keyPositions.at<float>(i,6) = q.w();
+                }
+            }
+            return keyPositions;
+          }
+          catch (const std::exception& e)
+      {
+        cout << e.what() << endl;
+        ofstream myfile;
+        myfile.open ("errorLog.txt");
+        myfile << e.what();
+        myfile.close();
+        //std::cerr << e.what() << std::endl;
+        throw runtime_error(e.what());
+      }
+  }
+            
   cv::Mat process(cv::Mat &in_image, const double &seconds){
     cv::Mat camPose;
     Sophus::SE3f camPoseReturn;
@@ -280,7 +324,10 @@ public:
 PYBIND11_MODULE(pyOrbSlam, m)
 {
 	NDArrayConverter::init_numpy();
-
+  py::class_<Debug>(m, "Debug")
+    .def(py::init())
+    .def("getPID",&Debug::getPID);
+    
 	py::class_<PyOrbSlam>(m, "OrbSlam")
     //.def(py::init())
 		.def(py::init<string,string, string,bool>(), py::arg("path_to_vocabulary"), py::arg("path_to_settings"), py::arg("sensorType")="Mono", py::arg("useViewer")=false)
@@ -292,7 +339,9 @@ PYBIND11_MODULE(pyOrbSlam, m)
     .def("ResetActiveMap", &PyOrbSlam::ResetActiveMap)
     .def("GetTrackingState", &PyOrbSlam::GetTrackingState)
     .def("IsLost", &PyOrbSlam::IsLost)
-    .def("GetTrackedMapPoints", &PyOrbSlam::GetTrackedMapPoints)
-    .def("getPID",&PyOrbSlam::getPID)
+    .def("GetTrackedMapPoints", &PyOrbSlam::GetTrackedMapPointsOfMap, py::arg("mapNr")=-1)
+    .def("GetTrackedMapReferencePoints", &PyOrbSlam::GetTrackedMapReferencePointsOfMap, py::arg("mapNr")=-1)
+    .def("getNrOfMaps", &PyOrbSlam::getNrOfMaps)
+    .def("getKeyFramesOfMap", &PyOrbSlam::getKeyFramesOfMap, py::arg("mapNr")=-1, py::arg("withIMU") = false)
     .def("shutdown",&PyOrbSlam::Shutdown);
 };

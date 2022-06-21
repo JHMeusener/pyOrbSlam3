@@ -18,3 +18,4 @@ install sophos from the orbslam3 thirdparty modules (in the build folder: sudo m
 in the main directory install PyOrbSlam3 by entering "pip install ."
 
 Usage in Python:
+see example

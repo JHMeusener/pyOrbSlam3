@@ -51,8 +51,6 @@ class CMakeBuild(build_ext):
             "-DPYTHON_EXECUTABLE={}".format(sys.executable),
             "-DEXAMPLE_VERSION_INFO={}".format(self.distribution.get_version()),
             "-DCMAKE_BUILD_TYPE={}".format(cfg),  # not used on MSVC, but no harm
-            "-DCMAKE_TOOLCHAIN_FILE={}/scripts/buildsystems/vcpkg.cmake".format(os.environ.get("VCPKG_DIR")),
-            "-DNUMPY_INCLUDE_DIR={}".format(np.get_include())
         ]
         build_args = []
 
@@ -115,7 +113,7 @@ setup(
     description="python bindings for pyOrbSlam",
     long_description="",
     ext_modules=[CMakeExtension("pyOrbSlam"),],
-    include_dirs=[numpy.get_include()],
+    include_dirs=[np.get_include()],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False
 )

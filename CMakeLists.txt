@@ -5,8 +5,8 @@ LIST(APPEND CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/cmake
 )
 
-set (PYTHON_LIBRARIES
- /home/jhm/miniconda3/lib/libpython3.9.so)
+#set (PYTHON_LIBRARIES  #necessary if cmake finds the wrong python environment
+# /home/jhm/miniconda3/lib/libpython3.9.so)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  -march=native  -O0 -g3 -ggdb")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -march=native  -O0 -g3 -ggdb")
@@ -14,8 +14,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -march=native  -O0 -g3 -ggdb")
 add_subdirectory(modules/pybind11)
 
 find_package(OpenCV REQUIRED)
-#find_package(ORB_SLAM3 REQUIRED PATHS "/home/jhm/pyOrbSlam3/modules/ORB_SLAM3/")  - does not exist as a package
-find_package(Python3 COMPONENTS Interpreter Development NumPy REQUIRED)# 3.8.5 EXACT 
+find_package(Python3 COMPONENTS Interpreter Development NumPy REQUIRED)
 find_package(Eigen3 3.1.0 REQUIRED)
 find_package(Pangolin REQUIRED)
 

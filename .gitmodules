@@ -1,0 +1,6 @@
+[submodule "modules/ORB_SLAM3"]
+	path = modules/ORB_SLAM3
+	url = ../../UZ-SLAMLab/ORB_SLAM3.git
+[submodule "modules/pybind11"]
+	path = modules/pybind11
+	url = ../../pybind/pybind11.git

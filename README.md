@@ -3,9 +3,17 @@ This repo provides python bindings to OrbSlam3
 it is based on 
 https://github.com/UZ-SLAMLab/ORB_SLAM3 (module orbslam3),
 https://github.com/pybind/pybind11 (module pybind11),
-https://github.com/edmBernard/pybind11_opencv_numpy  (setup.py, ndarray_converter.cpp/.h),
+https://github.com/edmBernard/pybind11_opencv_numpy (module pybind11_opencv_numpy and setup.py),
 Code from these have their own licences
 
+Installation Tested on Ubuntu 22.04 and Ubuntu 18.04
+
+Prerequisites:
+OpenCV >= 4.4
+Python3 > 3.6
+python-numpy
+compiler capable of c++14
+prerequisites of the submodules
 
 changes to make to Orbslam3:
 copy the folder "/modules/changesInOrbSlam3" into OrbSlam3

@@ -8,8 +8,7 @@ Code from these have their own licences
 
 
 changes to make to Orbslam3:
-in System.h
-Atlas* mpAtlas;   should be moved to public
+copy the folder "/modules/changesInOrbSlam3" into OrbSlam3
 
 Compile the Orbslam3 module according to the OrbSlam3 instructions
 
@@ -19,3 +18,5 @@ in the main directory install PyOrbSlam3 by entering "pip install ."
 
 Usage in Python:
 see example
+
+Each row of the extracted Mappoints consists of 3-XYZ-Coordinates, 3-Normal-Vector, 1-NrOfObservations, 1-FoundRatio and *-Orb-Descriptor of the Mappoint

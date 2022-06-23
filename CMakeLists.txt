@@ -27,6 +27,8 @@ ${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/modules/ORB_SLAM3/
 ${PROJECT_SOURCE_DIR}/modules/ORB_SLAM3/include
 ${PROJECT_SOURCE_DIR}/modules/ORB_SLAM3/include/CameraModels
+${PROJECT_SOURCE_DIR}/modules/pybind11_opencv_numpy
+${PROJECT_SOURCE_DIR}/modules/ORB_SLAM3/Thirdparty/Sophus/sophus
 ${Pangolin_INCLUDE_DIRS}
 )
 
@@ -47,7 +49,7 @@ message("Python_LIBRARIES:${Python_LIBRARIES}")
 
 pybind11_add_module(pyOrbSlam 
     src/pyOrbSlam.cpp
-    src/ndarray_converter.cpp
+    ${PROJECT_SOURCE_DIR}/modules/pybind11_opencv_numpy/ndarray_converter.cpp
 )
 
 add_executable(testOrbSlamVideo

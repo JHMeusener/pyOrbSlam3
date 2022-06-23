@@ -4,3 +4,6 @@
 [submodule "modules/pybind11"]
 	path = modules/pybind11
 	url = ../../pybind/pybind11.git
+[submodule "modules/pybind11_opencv_numpy"]
+	path = modules/pybind11_opencv_numpy
+	url = https://github.com/edmBernard/pybind11_opencv_numpy

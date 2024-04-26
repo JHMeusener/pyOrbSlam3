@@ -29,6 +29,7 @@ ${PROJECT_SOURCE_DIR}/modules/ORB_SLAM3/include
 ${PROJECT_SOURCE_DIR}/modules/ORB_SLAM3/include/CameraModels
 ${PROJECT_SOURCE_DIR}/modules/pybind11_opencv_numpy
 ${PROJECT_SOURCE_DIR}/modules/ORB_SLAM3/Thirdparty/Sophus/sophus
+${PROJECT_SOURCE_DIR}/modules/ORB_SLAM3/Thirdparty/Sophus
 ${Pangolin_INCLUDE_DIRS}
 )
 

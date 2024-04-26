@@ -10,8 +10,8 @@ Camera.type: "PinHole"
 # Camera calibration and distortion parameters (OpenCV) 
 Camera1.fx: 1.20830273e+03
 Camera1.fy: 1.20855420e+03
-Camera1.cx: 6.53609863e+02
-Camera1.cy: 3.50683411e+02
+Camera1.cx: 3.23609863e+02
+Camera1.cy: 2.40683411e+02
 
 Camera1.k1: 1.45821065e-01
 Camera1.k2: -4.79513466e-01
@@ -19,14 +19,14 @@ Camera1.p1: 5.81940054e-04
 Camera1.p2: -6.40836777e-04
 
 # Camera resolution
-Camera.width: 1280
-Camera.height: 720
+Camera.width: 640
+Camera.height: 480
 
-Camera.newWidth: 1280
-Camera.newHeight: 720
+Camera.newWidth: 640
+Camera.newHeight: 480
 
 # Camera frames per second 
-Camera.fps: 20
+Camera.fps: 10
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1

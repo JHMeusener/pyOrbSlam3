@@ -51,6 +51,9 @@ while True:
     cv2.waitKey(4)
     pose = slam.process(image, timeStamp)
     print(pose)
+    if frameNr%10 == 1:
+        print("FramePoints:")
+        print(slam.getFramePoints())
     if (slam.GetTrackingState() > 2) :
         print(slam.GetTrackingState())
         #time.sleep(0.3)

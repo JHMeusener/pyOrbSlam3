@@ -8,6 +8,7 @@
 #include <opencv2/imgproc.hpp>
 
 #include <System.h>
+
 #include <Converter.h>
 #include <MapPoint.h>
 
@@ -69,6 +70,7 @@ public:
         try{
 		  slam = new ORB_SLAM3::System(path_to_vocabulary,path_to_settings,sensor, useViewer);
       conv = new ORB_SLAM3::Converter();
+      
       }
       catch (const std::exception& e)
       {
@@ -298,6 +300,23 @@ public:
         throw runtime_error(e.what());
       }
   }
+  
+  cv::Mat getFramePoints(){
+    try{
+      ORB_SLAM3::LocalSaveClass& lsave = ORB_SLAM3::LocalSaveClass::getInstance();
+      return lsave.getFramePoints();
+    }
+    catch (const std::exception& e)
+      {
+        ofstream myfile;
+        myfile.open ("errorLog.txt");
+        myfile << e.what();
+        myfile.close();
+        throw  runtime_error(e.what());
+        //std::cerr << e.what() << std::endl;
+      }
+  }
+  
             
   cv::Mat process(cv::Mat &in_image, const double &seconds){
     cv::Mat camPose;
@@ -339,6 +358,7 @@ PYBIND11_MODULE(pyOrbSlam, m)
     .def("ResetActiveMap", &PyOrbSlam::ResetActiveMap)
     .def("GetTrackingState", &PyOrbSlam::GetTrackingState)
     .def("IsLost", &PyOrbSlam::IsLost)
+    .def("getFramePoints",&PyOrbSlam::getFramePoints)
     .def("GetTrackedMapPoints", &PyOrbSlam::GetTrackedMapPointsOfMap, py::arg("mapNr")=-1)
     .def("GetTrackedMapReferencePoints", &PyOrbSlam::GetTrackedMapReferencePointsOfMap, py::arg("mapNr")=-1)
     .def("getNrOfMaps", &PyOrbSlam::getNrOfMaps)

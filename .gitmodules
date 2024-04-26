@@ -1,9 +1,9 @@
 [submodule "pyOrbSlam3/modules/ORB_SLAM3"]
 	path = pyOrbSlam3/modules/ORB_SLAM3
-	url = ../../UZ-SLAMLab/ORB_SLAM3.git
+	url = https://github.com/UZ-SLAMLab/ORB_SLAM3
 [submodule "pyOrbSlam3/modules/pybind11"]
 	path = pyOrbSlam3/modules/pybind11
-	url = ../../pybind/pybind11.git
+	url = https://github.com/pybind/pybind11
 [submodule "pyOrbSlam3/modules/pybind11_opencv_numpy"]
 	path = pyOrbSlam3/modules/pybind11_opencv_numpy
 	url = https://github.com/edmBernard/pybind11_opencv_numpy

@@ -57,8 +57,23 @@ ARG trg1="/home/pyOrbslam3"
 COPY ${src1} ${trg1}
 
 RUN cp -rf /home/pyOrbslam3/modules/changes_in_ORBSLAM3 /home/pyOrbslam3/modules/ORB_SLAM3
-RUN chmod +x home/pyOrbslam3/modules/ORB_SLAM3/build.sh
-RUN . /opt/ros/humble/setup.sh && cd /home/pyOrbslam3/modules/ORB_SLAM3 && mkdir build && ./build.sh
+
+RUN apt-get update
+
+RUN echo "Configuring and building Thirdparty/DBoW2 "
+RUN . /opt/ros/humble/setup.sh && mkdir /home/pyOrbslam3/modules/ORB_SLAM3/Thirdparty/DBoW2/build && cd /home/pyOrbslam3/modules/ORB_SLAM3/Thirdparty/DBoW2/build && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j8
+
+#RUN echo "Configuring and building Thirdparty/g2o "
+#RUN . /opt/ros/humble/setup.sh && mkdir /home/pyOrbslam3/modules/ORB_SLAM3/Thirdparty/g2o/build && cd /home/pyOrbslam3/modules/ORB_SLAM3/Thirdparty/g2o/build && cmake .. -#DCMAKE_BUILD_TYPE=Release && make -j8
+
+RUN echo "Configuring and building Thirdparty/Sophos "
+RUN . /opt/ros/humble/setup.sh && mkdir /home/pyOrbslam3/modules/ORB_SLAM3/Thirdparty/Sophus/build && cd /home/pyOrbslam3/modules/ORB_SLAM3/Thirdparty/Sophus/build && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j8
+
+RUN echo "Extracting Vocabulary "
+RUN  cd /home/pyOrbslam3/modules/ORB_SLAM3/Vocabulary && tar -xf ORBvoc.txt.tar.gz
+
+RUN echo "Building OrbSlam3"
+RUN . /opt/ros/humble/setup.sh && mkdir /home/pyOrbslam3/modules/ORB_SLAM3/build && cd /home/pyOrbslam3/modules/ORB_SLAM3/build && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j8
 
 #install Redis Server
 RUN apt-get install lsb-release curl gpg -y

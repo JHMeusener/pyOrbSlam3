@@ -36,12 +36,14 @@ sudo chmod +x docker_install.sh
 ./docker_install.sh
 ```
 
-## 3. Build the image with ORB_SLAM3
+## 3. Copy the Folder "Changes in OrbSlam3" from the modules folder into the OrbSlam3 folder.
+
+## 4. Build the image with ORB_SLAM3
 
 1. Build the image: ```sudo docker build -t orbpy .```
 2. You can see the built images on your machine by running ```sudo docker images```.
 
-## 4. Running the container
+## 5. Running the container
 
 1. ```cd pyOrbslam``` (ignore if you are already in the folder)
 2. ```sudo docker compose run orbpy```

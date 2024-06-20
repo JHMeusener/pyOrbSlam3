@@ -37,6 +37,7 @@ sudo chmod +x docker_install.sh
 ```
 
 ## 3. Copy the Folder "Changes in OrbSlam3" from the modules folder into the OrbSlam3 folder.
+!!! Copy the Folder "Changes in OrbSlam3" from the modules folder into the OrbSlam3 folder. !!!
 
 ## 4. Build the image with ORB_SLAM3
 

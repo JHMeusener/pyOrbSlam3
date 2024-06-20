@@ -34,12 +34,12 @@ RUN apt-get install -y libavcodec-dev libavformat-dev libswscale-dev
 RUN apt-get install -y libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev
 RUN apt-get install -y libgtk-3-dev
 
-RUN cd /tmp && git clone https://github.com/opencv/opencv.git && \
-    cd opencv && \
-    git checkout 4.4.0 && mkdir build && cd build && \
-    cmake -D CMAKE_BUILD_TYPE=Release -D BUILD_EXAMPLES=OFF  -D BUILD_DOCS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_TESTS=OFF -D CMAKE_INSTALL_PREFIX=/usr/local .. && \
+RUN cd /tmp && git clone https://github.com/opencv/opencv.git && git clone https://github.com/opencv/opencv_contrib &&\
+    cd opencv_contrib && git checkout 4.6.0 && cd .. &&\
+    cd opencv && git checkout 4.6.0 && mkdir build && cd build && \
+    cmake -D CMAKE_BUILD_TYPE=Release -D BUILD_EXAMPLES=OFF -D OPENCV_EXTRA_MODULES_PATH=/tmp/opencv_contrib/modules /tmp/opencv_contrib -D BUILD_DOCS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_TESTS=OFF -D CMAKE_INSTALL_PREFIX=/usr/local .. && \
     make -j8 && make install && \
-    cd / && rm -rf /tmp/opencv
+    cd / && rm -rf /tmp/opencv && rm -rf /tmp/opencv_contrib
 
 # Build Pangolin
 RUN cd /tmp && git clone https://github.com/stevenlovegrove/Pangolin && \

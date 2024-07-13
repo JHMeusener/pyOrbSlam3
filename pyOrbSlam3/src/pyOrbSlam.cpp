@@ -123,6 +123,12 @@ public:
 
   bool IsLost(){return slam->isLost();};
 
+  long unsigned int getCurrentMapID(){
+      ORB_SLAM3::Map* pActiveMap;
+      pActiveMap = slam->mpAtlas->GetCurrentMap();
+      return pActiveMap->GetId();
+  };
+
   int getNrOfMaps(){
       vector<ORB_SLAM3::Map*> vpMaps = slam->mpAtlas->GetAllMaps();
       return vpMaps.size();
@@ -357,6 +363,7 @@ PYBIND11_MODULE(pyOrbSlam, m)
     .def("Reset", &PyOrbSlam::Reset)
     .def("ResetActiveMap", &PyOrbSlam::ResetActiveMap)
     .def("GetTrackingState", &PyOrbSlam::GetTrackingState)
+    .def("GetCurrentMapID", &PyOrbSlam::getCurrentMapID)
     .def("IsLost", &PyOrbSlam::IsLost)
     .def("getFramePoints",&PyOrbSlam::getFramePoints)
     .def("GetTrackedMapPoints", &PyOrbSlam::GetTrackedMapPointsOfMap, py::arg("mapNr")=-1)
